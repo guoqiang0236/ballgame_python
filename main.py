@@ -48,6 +48,7 @@ progress_bar = {
 }
 
 running = True
+game_over = False
 clock = pygame.time.Clock()
 
 def check_ball_collision(ball1, ball2):
@@ -122,9 +123,33 @@ def draw_progress():
         progress_bar['height']
     ), 3)
     
-    # 绘制分数文字
+    # 绘制分数文字在进度条下面
     score_text = font.render(f"Score: {total_score} / {max_progress}", True, (255, 255, 255))
-    screen.blit(score_text, (progress_bar['x'] + 10, progress_bar['y'] + 5))
+    screen.blit(score_text, (progress_bar['x'], progress_bar['y'] + progress_bar['height'] + 5))
+
+def draw_game_over():
+    """绘制游戏结束画面"""
+    # 半透明黑色背景
+    overlay = pygame.Surface((screen_width, screen_height))
+    overlay.set_alpha(150)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+    
+    # 游戏结束文字
+    large_font = pygame.font.Font(None, 80)
+    game_over_text = large_font.render("GAME OVER", True, (255, 0, 0))
+    game_over_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 80))
+    screen.blit(game_over_text, game_over_rect)
+    
+    # 最终分数
+    final_score_text = font.render(f"Final Score: {total_score}", True, (255, 255, 255))
+    final_score_rect = final_score_text.get_rect(center=(screen_width // 2, screen_height // 2 + 20))
+    screen.blit(final_score_text, final_score_rect)
+    
+    # 提示关闭
+    hint_text = font.render("Close the window to exit", True, (200, 200, 200))
+    hint_rect = hint_text.get_rect(center=(screen_width // 2, screen_height // 2 + 80))
+    screen.blit(hint_text, hint_rect)
 
 def handle_ball_collision(ball1, ball2):
     """处理两个球的碰撞反弹"""
@@ -317,6 +342,14 @@ while running:
     
     # 绘制进度条
     draw_progress()
+    
+    # 检查游戏是否结束
+    if total_score >= max_progress:
+        game_over = True
+    
+    # 绘制游戏结束画面
+    if game_over:
+        draw_game_over()
     
     pygame.display.flip()
     clock.tick(60)
